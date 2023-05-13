@@ -44,8 +44,16 @@ namespace PrivacyPulse_BACK.Controllers
             newUser.Biography = "";
             newUser.PasswordHash = passwordHash;
             newUser.PasswordSalt = passwordSalt;
-            newUser.PublicKey = aesService.GenerateKey();
-            newUser.EncryptedPrivateKey = aesService.EncryptString(model.Password, aesService.GenerateKey());
+
+            using var rsa = RSA.Create();
+            byte[] privateKeyPkcs8 = rsa.ExportPkcs8PrivateKey();
+            byte[] publicKey = rsa.ExportSubjectPublicKeyInfo();
+
+            string publicKeyBase64Encoded = Convert.ToBase64String(publicKey);
+            string privateKeyBase64Encoded = Convert.ToBase64String(privateKeyPkcs8);
+
+            newUser.PublicKey = publicKeyBase64Encoded;
+            newUser.EncryptedPrivateKey = aesService.EncryptString(model.Password, privateKeyBase64Encoded);
 
             dataContext.Users.Add(newUser);
             dataContext.SaveChanges();

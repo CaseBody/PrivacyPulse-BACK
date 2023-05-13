@@ -55,18 +55,6 @@ namespace PrivacyPulse_BACK.Services
             }
         }
 
-        public string GenerateKey()
-        {
-            using (Aes aesAlgorithm = Aes.Create())
-            {
-                aesAlgorithm.KeySize = 256;
-                aesAlgorithm.GenerateKey();
-                string keyBase64 = Convert.ToBase64String(aesAlgorithm.Key);
-
-                return keyBase64;
-            }
-        }
-
         private (byte[], byte[]) GetHashKeys(string key)
         {
             byte[][] result = new byte[2][];

@@ -16,6 +16,7 @@ namespace PrivacyPulse_BACK.Controllers
         private readonly PrivacyPulseContext dataContext;
         private readonly IConfiguration configuration;
         private readonly JWTService jwtService;
+        private readonly AesService aesService;
 
 
         public AuthController(PrivacyPulseContext dataContext, IConfiguration configuration)
@@ -23,6 +24,7 @@ namespace PrivacyPulse_BACK.Controllers
             this.dataContext = dataContext;
             this.configuration = configuration;
             jwtService = new JWTService(configuration.GetSection("AppSettings:Token").Value);
+            aesService = new AesService();
         }
 
         [HttpPost("register")]
@@ -42,6 +44,8 @@ namespace PrivacyPulse_BACK.Controllers
             newUser.Biography = "";
             newUser.PasswordHash = passwordHash;
             newUser.PasswordSalt = passwordSalt;
+            newUser.PublicKey = aesService.GenerateKey();
+            newUser.EncryptedPrivateKey = aesService.EncryptString(model.Password, aesService.GenerateKey());
 
             dataContext.Users.Add(newUser);
             dataContext.SaveChanges();
@@ -50,7 +54,7 @@ namespace PrivacyPulse_BACK.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserLoginModel model)
+        public async Task<IActionResult> Login(UserLoginModel model)
         {
             var user = await dataContext.Users.Where(g => g.Username == model.Username).FirstOrDefaultAsync();
             if (user == null)
@@ -63,7 +67,13 @@ namespace PrivacyPulse_BACK.Controllers
                 return BadRequest("Username or Password does not match");
             }
 
-            return Ok(jwtService.CreateJWT(user));
+            return Ok(new
+            {
+                user = user.Id,
+                userName = user.Username,
+                token = jwtService.CreateJWT(user),
+                privateKey = aesService.DecryptString(model.Password, user.EncryptedPrivateKey)
+            });
         }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)

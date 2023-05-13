@@ -10,15 +10,17 @@ namespace PrivacyPulse_BACK.Services
     public class JWTService
     {
         private string secretKey;
+        private readonly AesService aesService;
         public JWTService(string secretKey)
         {
             this.secretKey = secretKey;
+            aesService = new AesService();
         }
         public string CreateJWT(User user)
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim("user", user.Id.ToString()),
+                new Claim("user", user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secretKey));

@@ -1,5 +1,6 @@
 ﻿using PrivacyPulse_BACK.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata;
 
 namespace CampingAPI.DataBase
 {
@@ -10,6 +11,15 @@ namespace CampingAPI.DataBase
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .HasMany(x => x.Friends)
+                .WithOne(x => x.User);
+        }
+
         public DbSet<User> Users { get; set; }
+        public DbSet<UserFriend> UserFriends { get; set; }
+        public DbSet<FriendRequest> FriendRequests { get; set; }
     }
 }

@@ -10,5 +10,7 @@ namespace PrivacyPulse_BACK.Entities
         public byte[] PasswordSalt { get; set; }
         public string PublicKey { get; set; }
         public string EncryptedPrivateKey { get; set; }
+
+        public List<UserFriend> Friends { get; set; }
     }
 }

@@ -31,6 +31,8 @@ namespace PrivacyPulse_BACK.Attributes
             }
             else
             {
+                if (token.FirstOrDefault() == null) Unauthorized(context);
+
                 if (jwtService.ValidateAndReadJWT(token.FirstOrDefault(), out var decodedToken))
                 {
                     context.HttpContext.Items.Add("user", int.Parse(decodedToken.Claims.First(x => x.Type == "user").Value));

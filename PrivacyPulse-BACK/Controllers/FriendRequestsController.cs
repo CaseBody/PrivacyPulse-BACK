@@ -21,6 +21,22 @@ namespace PrivacyPulse_BACK.Controllers
             this.dataContext = dataContext;
         }
 
+        [HttpGet("open")]
+        public async Task<ActionResult<int>> GetOpen()
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var user = await dataContext.Users.Include(x => x.Friends).FirstAsync(x => x.Id == userId);
+
+            var friendRequests = await dataContext.FriendRequests
+                .Where(x => x.ToUserId == userId)
+                .CountAsync(); 
+
+            return Ok(friendRequests);
+        }
+
         [HttpGet()]
         public async Task<ActionResult<FriendRequestModel>> Get()
         {
@@ -38,6 +54,7 @@ namespace PrivacyPulse_BACK.Controllers
 
             return Ok(friendRequests.Select(x => new FriendRequestModel
             {
+                Id = x.Id,
                 UserId = x.FromUserId,
                 Username = x.FromUser.Username,
                 MutualFriends = x.FromUser.Friends.Select(x => x.FriendUserId).Sum(x => user.Friends.Any(y => y.FriendUserId == x) ? 1 : 0)
@@ -91,6 +108,60 @@ namespace PrivacyPulse_BACK.Controllers
             };
 
             dataContext.FriendRequests.Add(newRequest);
+            await dataContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPut("{id}/accept")]
+        public async Task<IActionResult> Accept(int id)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var friendRequest = await dataContext.FriendRequests.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (friendRequest == null) return NotFound();
+
+            if (friendRequest.ToUserId != userId) return Unauthorized();
+
+            var newFriend = new UserFriend
+            {
+                UserId = (int)userId,
+                FriendUserId = friendRequest.FromUserId
+            };
+
+            var newFriend2 = new UserFriend
+            {
+                UserId = friendRequest.FromUserId,
+                FriendUserId = (int)userId
+            };
+
+            dataContext.UserFriends.Add(newFriend);
+            dataContext.UserFriends.Add(newFriend2);
+            dataContext.FriendRequests.Remove(friendRequest);
+
+            await dataContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPut("{id}/deny")]
+        public async Task<IActionResult> Deny(int id)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var friendRequest = await dataContext.FriendRequests.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (friendRequest == null) return NotFound();
+
+            if (friendRequest.ToUserId != userId) return Unauthorized();
+
+            dataContext.FriendRequests.Remove(friendRequest);
+
             await dataContext.SaveChangesAsync();
 
             return Ok();

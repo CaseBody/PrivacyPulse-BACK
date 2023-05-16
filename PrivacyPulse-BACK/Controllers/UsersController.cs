@@ -42,5 +42,11 @@ namespace PrivacyPulse_BACK.Controllers
             });
 
         }
+
+        [HttpPut("updateBio")]
+        public async Task<IActionResult> Put(string bio)
+        {
+
+        }
     }
 }

@@ -25,7 +25,7 @@ namespace PrivacyPulse_BACK.Controllers
 
             if (!result) return Unauthorized();
 
-            var user = await dataContext.Users.Include(x => x.Friends).FirstOrDefaultAsync(x => x.Id == id);.
+            var user = await dataContext.Users.Include(x => x.Friends).FirstOrDefaultAsync(x => x.Id == id);
 
             if (user == null) return NotFound();
 

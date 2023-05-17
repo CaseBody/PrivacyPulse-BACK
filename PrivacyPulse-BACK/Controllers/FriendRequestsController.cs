@@ -96,6 +96,8 @@ namespace PrivacyPulse_BACK.Controllers
 
                 dataContext.UserFriends.Add(newFriend);
                 dataContext.UserFriends.Add(newFriend2);
+                dataContext.FriendRequests.Remove(incomingFriendRequest);
+
                 await dataContext.SaveChangesAsync();
 
                 return Ok();

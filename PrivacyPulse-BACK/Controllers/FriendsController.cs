@@ -53,9 +53,11 @@ namespace PrivacyPulse_BACK.Controllers
                 query = query.Where(x => x.Username.ToLower().Contains(name.ToLower()));
             }
 
+            var outgoingRequests = await dataContext.FriendRequests.Where(x => x.FromUserId == user.Id).ToListAsync();
+
             var users = await query.Take(10).ToListAsync();
 
-            users = users.Where(x => !user.Friends.Any(y => y.FriendUserId == x.Id)).ToList();
+            users = users.Where(x => !user.Friends.Any(y => y.FriendUserId == x.Id) && !outgoingRequests.Any(y => y.ToUserId == x.Id)).ToList();
 
             return Ok(users.Select(x => new
             {

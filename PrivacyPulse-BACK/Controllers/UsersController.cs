@@ -46,7 +46,17 @@ namespace PrivacyPulse_BACK.Controllers
         [HttpPut("updateBio")]
         public async Task<IActionResult> Put(string bio)
         {
+            var result = TryGetUserId(out var userId);
 
+            if (!result) return Unauthorized();
+
+            var user = await dataContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            user.Biography = bio;
+
+            await dataContext.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }

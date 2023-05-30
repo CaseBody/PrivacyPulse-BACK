@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrivacyPulse_BACK.Attributes;
+using PrivacyPulse_BACK.Constants;
 using PrivacyPulse_BACK.Models;
 
 namespace PrivacyPulse_BACK.Controllers
@@ -56,6 +57,20 @@ namespace PrivacyPulse_BACK.Controllers
 
             await dataContext.SaveChangesAsync();
 
+            return Ok();
+        }
+
+        [HttpPut("uploadProfileImage")]
+        public async Task<IActionResult> UploadProfileImage(IFormFile file)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var memoryStream = new MemoryStream();
+            file.CopyTo(memoryStream);
+
+            System.IO.File.WriteAllBytes(Paths.GetProfilePicturePath((int)userId), memoryStream.ToArray());
             return Ok();
         }
     }

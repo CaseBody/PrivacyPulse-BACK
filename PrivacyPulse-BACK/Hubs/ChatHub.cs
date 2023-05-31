@@ -48,13 +48,16 @@ namespace PrivacyPulse_BACK.Hubs
                 var userId = int.Parse(decodedToken.Claims.First(x => x.Type == "user").Value);
                 var forUserId = chat.UserChats.FirstOrDefault(x => x.UserId != userId).UserId;
 
+                var date = DateTime.UtcNow;
+                date = date.AddHours(2);
+
                 if (chat.UserChats.Any(x => x.UserId == userId))
                 {
                     chat.Messages.Add(new Message
                     {
                         FromUserId = userId,
                         MessageType = MessageType.UserMessage,
-                        SendDate = DateTime.UtcNow,
+                        SendDate = date,
                         MessageContents = new List<MessageContent>
                         {
                             new MessageContent
@@ -70,8 +73,8 @@ namespace PrivacyPulse_BACK.Hubs
                         }
                     });
 
-                    await Clients.Group(chatId.ToString()).SendAsync("new", forUserId, outgoingCipherText, userId);
-                    await Clients.Group(chatId.ToString()).SendAsync("new", userId, incomingCipherText, userId);
+                    await Clients.Group(chatId.ToString()).SendAsync("new", forUserId, outgoingCipherText, userId, DateTime.UtcNow);
+                    await Clients.Group(chatId.ToString()).SendAsync("new", userId, incomingCipherText, userId, DateTime.UtcNow);
 
                     await dataContext.SaveChangesAsync();
                 }

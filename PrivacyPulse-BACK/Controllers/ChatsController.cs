@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PrivacyPulse_BACK.Attributes;
 using PrivacyPulse_BACK.Constants;
 using PrivacyPulse_BACK.Entities;
+using PrivacyPulse_BACK.Enums;
 using PrivacyPulse_BACK.Models;
 using PrivacyPulse_BACK.Services;
 using System.Security.Cryptography;
@@ -53,6 +54,21 @@ namespace PrivacyPulse_BACK.Controllers
                 {
                     new UserChat { UserId = id },
                     new UserChat { UserId = user.Id }
+                },
+                Messages = new List<Message>
+                {
+                    new Message
+                    {
+                        MessageType = MessageType.SystemMessage,
+                        SendDate = DateTime.UtcNow.AddDays(2),
+                        Text = $"All messages in this chat are end-to-end encrypted by PrivacyPulse 🔒",
+                    },
+                    new Message
+                    {
+                        MessageType = MessageType.SystemMessage,
+                        SendDate = DateTime.UtcNow.AddDays(2),
+                        Text = $"This is the start of the chat between {user.Username} and {newChatUser.Username}",
+                    }
                 }
             };
 
@@ -137,9 +153,32 @@ namespace PrivacyPulse_BACK.Controllers
             {
                 x.FromUserId,
                 x.SendDate,
-                message = x.MessageContents.First(x => x.ForUserId == userId).CipherText
+                message = x.MessageContents.FirstOrDefault(x => x.ForUserId == userId)?.CipherText,
+                x.Text,
+                Type = x.MessageType.ToString(),
             }));
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var chat = await dataContext.Chats
+                .Include(x => x.UserChats)
+                .ThenInclude(x => x.User)
+                .FirstOrDefaultAsync();
+
+            if (chat == null) return NotFound();
+
+            if (!chat.UserChats.Any(x => x.UserId == userId)) return Unauthorized();
+
+            dataContext.Chats.Remove(chat);
+            await dataContext.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }

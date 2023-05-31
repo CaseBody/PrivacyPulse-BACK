@@ -7,6 +7,7 @@ namespace PrivacyPulse_BACK.Entities
         public int Id { get; set; }
         public int? FromUserId { get; set; }
         public int ChatId { get; set; }
+        public string? Text { get; set; }
         public DateTime SendDate { get; set; }
         public MessageType MessageType { get; set; }
 

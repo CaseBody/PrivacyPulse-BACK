@@ -1,5 +1,6 @@
 using CampingAPI.DataBase;
 using Microsoft.EntityFrameworkCore;
+using PrivacyPulse_BACK.Hubs;
 
 namespace PrivacyPulse_BACK
 {
@@ -10,6 +11,7 @@ namespace PrivacyPulse_BACK
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddSignalR();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,7 +34,7 @@ namespace PrivacyPulse_BACK
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed(origin => true));
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed(origin => true).AllowCredentials());
 
             app.UseHttpsRedirection();
 
@@ -40,6 +42,8 @@ namespace PrivacyPulse_BACK
 
 
             app.MapControllers();
+
+            app.MapHub<ChatHub>("/api/hubs/chat");
 
             app.Run();
         }

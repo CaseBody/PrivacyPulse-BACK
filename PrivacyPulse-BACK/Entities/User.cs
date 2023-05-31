@@ -12,5 +12,6 @@ namespace PrivacyPulse_BACK.Entities
         public string EncryptedPrivateKey { get; set; }
 
         public List<UserFriend> Friends { get; set; }
+        public List<UserChat> UserChats { get; set; }
     }
 }

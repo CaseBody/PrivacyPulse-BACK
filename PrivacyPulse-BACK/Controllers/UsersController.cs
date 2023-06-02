@@ -30,7 +30,7 @@ namespace PrivacyPulse_BACK.Controllers
 
             if (user == null) return NotFound();
 
-            if (id != userId && !user.Friends.Any(x  => x.FriendUserId == userId))
+            if (id != userId && !user.Friends.Any(x  => x.FriendUserId == userId) && user.PrivateProfile)
             {
                 return Unauthorized();
             }

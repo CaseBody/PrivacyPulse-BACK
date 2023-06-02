@@ -55,6 +55,8 @@ namespace PrivacyPulse_BACK.Controllers
             newUser.PublicKey = publicKeyBase64Encoded;
             newUser.EncryptedPrivateKey = aesService.EncryptString(model.Password, privateKeyBase64Encoded);
 
+            newUser.PrivateProfile = true;
+
             dataContext.Users.Add(newUser);
             dataContext.SaveChanges();
 

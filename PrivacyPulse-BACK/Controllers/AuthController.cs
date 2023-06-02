@@ -28,7 +28,7 @@ namespace PrivacyPulse_BACK.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserCreationModel model)
+        public async Task<IActionResult> Register(UserCreationModel model)
         {
             var user = await dataContext.Users.Where(g => g.Username == model.Username).FirstOrDefaultAsync();
 
@@ -80,7 +80,8 @@ namespace PrivacyPulse_BACK.Controllers
                 user = user.Id,
                 userName = user.Username,
                 token = jwtService.CreateJWT(user),
-                privateKey = aesService.DecryptString(model.Password, user.EncryptedPrivateKey)
+                privateKey = aesService.DecryptString(model.Password, user.EncryptedPrivateKey),
+                publicKey = user.PublicKey,
             });
         }
 

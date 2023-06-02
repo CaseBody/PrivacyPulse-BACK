@@ -4,6 +4,7 @@ using CampingAPI.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PrivacyPulse_BACK.Migrations
 {
     [DbContext(typeof(PrivacyPulseContext))]
-    partial class PrivacyPulseContextModelSnapshot : ModelSnapshot
+    [Migration("20230523104856_AddChats")]
+    partial class AddChats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,9 +80,6 @@ namespace PrivacyPulse_BACK.Migrations
 
                     b.Property<DateTime>("SendDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -222,7 +222,7 @@ namespace PrivacyPulse_BACK.Migrations
             modelBuilder.Entity("PrivacyPulse_BACK.Entities.Message", b =>
                 {
                     b.HasOne("PrivacyPulse_BACK.Entities.Chat", "Chat")
-                        .WithMany("Messages")
+                        .WithMany()
                         .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -264,7 +264,7 @@ namespace PrivacyPulse_BACK.Migrations
                         .IsRequired();
 
                     b.HasOne("PrivacyPulse_BACK.Entities.User", "User")
-                        .WithMany("UserChats")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -295,8 +295,6 @@ namespace PrivacyPulse_BACK.Migrations
 
             modelBuilder.Entity("PrivacyPulse_BACK.Entities.Chat", b =>
                 {
-                    b.Navigation("Messages");
-
                     b.Navigation("UserChats");
                 });
 
@@ -308,8 +306,6 @@ namespace PrivacyPulse_BACK.Migrations
             modelBuilder.Entity("PrivacyPulse_BACK.Entities.User", b =>
                 {
                     b.Navigation("Friends");
-
-                    b.Navigation("UserChats");
                 });
 #pragma warning restore 612, 618
         }

@@ -32,6 +32,7 @@ namespace PrivacyPulse_BACK.Controllers
 
             return Ok(new SettingsModel
             {
+                Username = user.Username,
                 PrivateProfile = user.PrivateProfile,
             });
         }
@@ -46,6 +47,13 @@ namespace PrivacyPulse_BACK.Controllers
             var user = await dataContext.Users.FirstAsync(x => x.Id == userId);
             
             user.PrivateProfile = settings.PrivateProfile;
+
+            if (await dataContext.Users.AnyAsync(x => x.Username == settings.Username && x.Id != userId))
+            {
+                return BadRequest("Username is already taken");
+            }
+
+            user.Username = settings.Username;
 
             await dataContext.SaveChangesAsync();
 

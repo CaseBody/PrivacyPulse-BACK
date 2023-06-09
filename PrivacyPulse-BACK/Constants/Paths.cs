@@ -16,5 +16,18 @@
         {
             return $"{GetUserImagePath(userid)}profile.png";
         }
+
+        public static string GetPostsImageBasePath()
+        {
+            var dir = $"{BasePath}posts/";
+            Directory.CreateDirectory(dir);
+
+            return dir;
+        }
+
+        public static string GetPostImagePath(int postId)
+        {
+            return $"{GetPostsImageBasePath()}{postId}.png";
+        }
     }
 }

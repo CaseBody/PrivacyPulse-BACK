@@ -47,5 +47,20 @@ namespace PrivacyPulse_BACK.Controllers
 
             return Ok(post);
         }
+
+        [Route("/api/posts/user")]
+        [HttpGet()]
+        public async Task<ActionResult> Get()
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var posts = await dataContext.Posts.Where(x => x.UserId == userId).ToListAsync();
+
+            if (posts == null) return NotFound();
+
+            return Ok(posts);
+        }
     }
 }

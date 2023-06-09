@@ -15,5 +15,16 @@ namespace PrivacyPulse_BACK.Controllers
         {
             this.dataContext = dataContext;
         }
+
+        [Route("/api/posts/create")]
+        [HttpPost()]
+        public async Task<ActionResult<int>> Create(int id)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            return Ok();
+        }
     }
 }

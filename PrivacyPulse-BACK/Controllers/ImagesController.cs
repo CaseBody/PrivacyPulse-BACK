@@ -37,6 +37,5 @@ namespace PrivacyPulse_BACK.Controllers
                 return NotFound();
             }
         }
-
     }
 }

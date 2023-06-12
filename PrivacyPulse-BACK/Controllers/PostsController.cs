@@ -48,19 +48,38 @@ namespace PrivacyPulse_BACK.Controllers
             return Ok(post);
         }
 
-        [Route("/api/posts/user")]
+        [Route("/api/users/{id}/posts")]
         [HttpGet()]
-        public async Task<ActionResult> Get()
+        public async Task<ActionResult<List<PostModel>>> GetUserPosts(int id)
         {
             var result = TryGetUserId(out var userId);
 
             if (!result) return Unauthorized();
 
-            var posts = await dataContext.Posts.Where(x => x.UserId == userId).ToListAsync();
+            var user = await dataContext.Users.Include(x => x.Friends).FirstOrDefaultAsync(x => x.Id == id);
 
-            if (posts == null) return NotFound();
+            if (user == null) return NotFound();
 
-            return Ok(posts);
+            if (id != userId && !user.Friends.Any(x => x.FriendUserId == userId) && user.PrivateProfile)
+            {
+                return Unauthorized();
+            }
+
+            var posts = await dataContext.Posts.Where(x => x.UserId == id).ToListAsync();
+
+            return Ok(posts.Select(x => new PostModel 
+            {
+                Id = x.Id,
+                Body = x.Body,
+                UserId = x.UserId,
+                Username = user.Username,
+                PostedAt = x.PostedAt,
+                Image = new Func<string>(() => 
+                {
+                    var imageBytes = System.IO.File.ReadAllBytes(Paths.GetPostImagePath(x.Id));
+                    return Convert.ToBase64String(imageBytes);
+                })()
+            }));
         }
     }
 }

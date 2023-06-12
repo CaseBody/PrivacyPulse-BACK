@@ -25,5 +25,8 @@ namespace CampingAPI.DataBase
         public DbSet<UserChat> UserChats { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<MessageContent> MessageContents { get; set; }
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<Like> Like { get; set; }
+        public DbSet<Comment> Comments { get; set; }
     }
 }

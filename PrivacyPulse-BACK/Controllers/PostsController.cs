@@ -34,7 +34,7 @@ namespace PrivacyPulse_BACK.Controllers
             {
                 UserId = (int)userId,
                 Body = postData.Body,
-                PostedAt = DateTime.UtcNow,
+                PostedAt = DateTime.UtcNow.AddHours(2),
             };
 
             dataContext.Posts.Add(post);

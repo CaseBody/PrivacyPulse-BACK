@@ -187,6 +187,8 @@ namespace PrivacyPulse_BACK.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Posts");
                 });
 
@@ -367,6 +369,17 @@ namespace PrivacyPulse_BACK.Migrations
                     b.Navigation("ForUser");
 
                     b.Navigation("Message");
+                });
+
+            modelBuilder.Entity("PrivacyPulse_BACK.Entities.Post", b =>
+                {
+                    b.HasOne("PrivacyPulse_BACK.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PrivacyPulse_BACK.Entities.UserChat", b =>

@@ -6,5 +6,7 @@
         public int UserId { get; set; }
         public string Body { get; set; }
         public DateTime PostedAt { get; set; }
+
+        public User User { get; set; }
     }
 }

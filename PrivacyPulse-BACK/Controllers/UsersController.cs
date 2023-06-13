@@ -73,5 +73,31 @@ namespace PrivacyPulse_BACK.Controllers
             System.IO.File.WriteAllBytes(Paths.GetProfilePicturePath((int)userId), memoryStream.ToArray());
             return Ok();
         }
+
+        [HttpGet("feed")]
+        public async Task<ActionResult<ProfileModel>> GetFeed()
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var user = await dataContext.Users.Include(x => x.Friends).FirstOrDefaultAsync(x => x.Id == userId);
+
+            var posts = await dataContext.Posts.Include(x => x.User).Where(x => user.Friends.Any(f => f.FriendUserId == x.UserId)).OrderByDescending(x => x.PostedAt).Take(10).ToListAsync();
+
+            return Ok(posts.Select(x => new PostModel
+            {
+                Id = x.Id,
+                Body = x.Body,
+                UserId = x.UserId,
+                Username = user.Username,
+                PostedAt = x.PostedAt,
+                Image = new Func<string>(() =>
+                {
+                    var imageBytes = System.IO.File.ReadAllBytes(Paths.GetPostImagePath(x.Id));
+                    return Convert.ToBase64String(imageBytes);
+                })()
+            }));
+        }
     }
 }

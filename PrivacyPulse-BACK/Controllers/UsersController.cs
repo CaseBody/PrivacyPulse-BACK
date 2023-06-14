@@ -83,14 +83,21 @@ namespace PrivacyPulse_BACK.Controllers
 
             var user = await dataContext.Users.Include(x => x.Friends).FirstOrDefaultAsync(x => x.Id == userId);
 
-            var posts = await dataContext.Posts.Include(x => x.User).Where(x => user.Friends.Any(f => f.FriendUserId == x.UserId)).OrderByDescending(x => x.PostedAt).Take(10).ToListAsync();
+            var friendUserIds = user.Friends.Select(f => f.FriendUserId);
+
+            var posts = await dataContext.Posts
+                .Include(x => x.User)
+                .Where(x => friendUserIds.Contains(x.UserId))
+                .OrderByDescending(x => x.PostedAt)
+                .Take(10)
+                .ToListAsync();
 
             return Ok(posts.Select(x => new PostModel
             {
                 Id = x.Id,
                 Body = x.Body,
                 UserId = x.UserId,
-                Username = user.Username,
+                Username = x.User.Username,
                 PostedAt = x.PostedAt,
                 Image = new Func<string>(() =>
                 {

@@ -81,5 +81,47 @@ namespace PrivacyPulse_BACK.Controllers
                 })()
             }));
         }
+
+        [Route("/api/posts/{id}/like")]
+        [HttpPost()]
+        public async Task<ActionResult<LikeModel>> LikeUserPost(int id)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var selectedPost = await dataContext.Posts.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (selectedPost == null) return NotFound();
+
+            var Like = new Like
+            {
+                UserId = (int)userId,
+                PostId = selectedPost.Id,
+            };
+
+            dataContext.Add(Like);
+            await dataContext.SaveChangesAsync();
+
+            return Ok(Like);
+        }
+        
+        [Route("/api/posts/{id}/dislike")]
+        [HttpDelete()]
+        public async Task<ActionResult<LikeModel>> DislikeUserPost(int id)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var dislikePost = await dataContext.Like.FirstOrDefaultAsync(p => p.PostId == id && p.UserId == userId);
+
+            if (dislikePost == null) return NotFound();
+
+            dataContext.Remove(dislikePost);
+            await dataContext.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }

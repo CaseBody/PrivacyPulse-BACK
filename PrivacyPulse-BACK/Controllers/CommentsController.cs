@@ -22,13 +22,13 @@ namespace PrivacyPulse_BACK.Controllers
 
         [Route("/api/comment/add")]
         [HttpPost()]
-        public async Task<ActionResult> Create([FromForm] CommentModel commentData)
+        public async Task<ActionResult> Create(CommentModel commentData)
         {
             var result = TryGetUserId(out var userId);
 
             if (!result) return Unauthorized();
 
-            var selectedPost = await dataContext.Posts.FirstOrDefaultAsync(p => p.Id == commentData.Id);
+            var selectedPost = await dataContext.Posts.FirstOrDefaultAsync(p => p.Id == commentData.CommentId);
 
             if (selectedPost == null) return NotFound();
 

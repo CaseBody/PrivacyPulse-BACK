@@ -86,6 +86,10 @@ namespace PrivacyPulse_BACK.Controllers
         [HttpPost("{id}/share")]
         public async Task<IActionResult> Share(int id, int userChatId)
         {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
             var userChat = await dataContext.UserChats.Include(x => x.Chat).ThenInclude(x => x.Messages).FirstOrDefaultAsync(x => x.Id == userChatId);
 
             if (userChat == null) return NotFound();
@@ -101,6 +105,8 @@ namespace PrivacyPulse_BACK.Controllers
                 PostId = id,
                 SendDate = DateTime.UtcNow.AddHours(2),
             });
+
+            return Ok();
         }
 
         [Route("/api/posts/{id}/like")]

@@ -3,6 +3,7 @@
     public enum MessageType
     {
         UserMessage,
-        SystemMessage
+        SystemMessage,
+        SharedPost,
     }
 }

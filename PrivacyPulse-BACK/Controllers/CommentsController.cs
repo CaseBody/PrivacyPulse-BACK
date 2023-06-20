@@ -62,5 +62,27 @@ namespace PrivacyPulse_BACK.Controllers
 
             return Ok();
         }
+
+        [Route("/api/comments/{id}/get")]
+        [HttpGet()]
+        public async Task<ActionResult> Get(int id)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var selectedComment = await dataContext.Comments.Include(u => u.User).FirstOrDefaultAsync(c => c.PostId == id && c.UserId == userId);
+
+            if (selectedComment == null) return NotFound();
+
+            var comment = new GetCommentModel
+            {
+                Id = selectedComment.User.Id,
+                username = selectedComment.User.Username,
+                body = selectedComment.Body,
+            };
+
+            return Ok(comment);
+        }
     }
 }

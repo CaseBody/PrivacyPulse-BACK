@@ -143,19 +143,35 @@ namespace PrivacyPulse_BACK.Controllers
                 .ThenInclude(x => x.User)
                 .Include(x => x.Messages)
                 .ThenInclude(x => x.MessageContents)
+                .Include(x => x.Messages)
+                .ThenInclude(x => x.Post)
+                .ThenInclude(x => x.User)
                 .Where(x => x.Id == id).FirstOrDefaultAsync();
 
             if (chat == null) return NotFound();
 
             if (!chat.UserChats.Any(x => x.UserId == userId)) return Unauthorized();
 
-            return Ok(chat.Messages.Select(x => new
+            return Ok(chat.Messages.OrderBy(x => x.SendDate).Select(x => new
             {
                 x.FromUserId,
                 x.SendDate,
                 message = x.MessageContents.FirstOrDefault(x => x.ForUserId == userId)?.CipherText,
                 x.Text,
                 Type = x.MessageType.ToString(),
+                SharedPost = x.Post == null ? null : new PostModel
+                {
+                    Id = x.Id,
+                    Body = x.Post.Body,
+                    UserId = x.Post.UserId,
+                    Username = x.Post.User.Username,
+                    PostedAt = x.Post.PostedAt,
+                    Image = new Func<string>(() =>
+                    {
+                        var imageBytes = System.IO.File.ReadAllBytes(Paths.GetPostImagePath((int)x.PostId));
+                        return Convert.ToBase64String(imageBytes);
+                    })()
+                }
             }));
         }
 
@@ -179,6 +195,35 @@ namespace PrivacyPulse_BACK.Controllers
             await dataContext.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpGet("existing")]
+        public async Task<ActionResult<FriendModel>> FindExistingChat(string? name)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+            var user = await dataContext.Users
+                .Include(x => x.UserChats)
+                .ThenInclude(x => x.Chat)
+                .ThenInclude(x => x.UserChats)
+                .ThenInclude(x => x.User)
+                .FirstAsync(x => x.Id == userId);
+
+            var users = user.UserChats;
+
+            if (name != null)
+            {
+                users = users.Where(x => x.Chat.UserChats.First(x => x.UserId != userId).User.Username.ToLower().Contains(name.ToLower())).ToList();
+            }
+
+            return Ok(users.Select(x => new
+            {                
+                x.Id,
+                x.Chat.UserChats.First(x => x.UserId != userId).UserId,
+                x.Chat.UserChats.First(x => x.UserId != userId).User.Username
+            }));
         }
     }
 }

@@ -39,7 +39,27 @@ namespace PrivacyPulse_BACK.Controllers
                 Body = commentData.Body,
             };
 
+            dataContext.Add(comment);
+            await dataContext.SaveChangesAsync();
+
             return Ok(comment);
+        }
+        
+        [Route("/api/comment/{id}/delete")]
+        [HttpDelete()]
+        public async Task<ActionResult> Create(int id)
+        {
+            var result = TryGetUserId(out var userId);
+
+            if (!result) return Unauthorized();
+
+
+            if (selectedComment == null) return NotFound();
+
+            dataContext.Remove(selectedComment);
+            await dataContext.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }

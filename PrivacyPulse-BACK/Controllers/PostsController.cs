@@ -68,13 +68,14 @@ namespace PrivacyPulse_BACK.Controllers
 
             var posts = await dataContext.Posts.Where(x => x.UserId == id).ToListAsync();
 
-            return Ok(posts.Select(x => new PostModel
+            return Ok(posts.Select( x => new PostModel
             {
                 Id = x.Id,
                 Body = x.Body,
                 UserId = x.UserId,
                 Username = user.Username,
                 PostedAt = x.PostedAt,
+                IsLiked = dataContext.Like.Any(y => y.UserId == userId && y.PostId == x.Id),
                 Image = new Func<string>(() =>
                 {
                     var imageBytes = System.IO.File.ReadAllBytes(Paths.GetPostImagePath(x.Id));

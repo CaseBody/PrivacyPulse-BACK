@@ -60,13 +60,13 @@ namespace PrivacyPulse_BACK.Controllers
                     new Message
                     {
                         MessageType = MessageType.SystemMessage,
-                        SendDate = DateTime.UtcNow.AddDays(2),
+                        SendDate = DateTime.UtcNow.AddHours(2),
                         Text = $"All messages in this chat are end-to-end encrypted by PrivacyPulse 🔒",
                     },
                     new Message
                     {
                         MessageType = MessageType.SystemMessage,
-                        SendDate = DateTime.UtcNow.AddDays(2),
+                        SendDate = DateTime.UtcNow.AddHours(2),
                         Text = $"This is the start of the chat between {user.Username} and {newChatUser.Username}",
                     }
                 }

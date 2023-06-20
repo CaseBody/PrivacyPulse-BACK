@@ -53,6 +53,7 @@ namespace PrivacyPulse_BACK.Controllers
 
             if (!result) return Unauthorized();
 
+            var selectedComment = await dataContext.Comments.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
 
             if (selectedComment == null) return NotFound();
 

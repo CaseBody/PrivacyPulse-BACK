@@ -71,18 +71,16 @@ namespace PrivacyPulse_BACK.Controllers
 
             if (!result) return Unauthorized();
 
-            var selectedComment = await dataContext.Comments.Include(u => u.User).FirstOrDefaultAsync(c => c.PostId == id && c.UserId == userId);
+            var selectedComment = await dataContext.Comments.Include(u => u.User).Where(c => c.PostId == id && c.UserId == userId).ToListAsync();
 
             if (selectedComment == null) return NotFound();
 
-            var comment = new GetCommentModel
+            return Ok(selectedComment.Select(x => new GetCommentModel
             {
-                Id = selectedComment.User.Id,
-                username = selectedComment.User.Username,
-                body = selectedComment.Body,
-            };
-
-            return Ok(comment);
+                Id = x.User.Id,
+                username = x.User.Username,
+                body = x.Body,
+            }));
         }
     }
 }
